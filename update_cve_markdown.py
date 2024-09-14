@@ -1,19 +1,23 @@
 import requests
-import json
 
-# Fetch the latest CVEs from NVD
-response = requests.get("https://services.nvd.nist.gov/rest/json/cves/1.0?resultsPerPage=100")
-cve_data = response.json()
+def fetch_cve_data():
+    url = "https://services.nvd.nist.gov/rest/json/cves/1.0?resultsPerPage=100"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
-# Extract relevant information
-cve_list = []
-for cve in cve_data['result']['CVE_Items']:
-    cve_id = cve['cve']['CVE_data_meta']['ID']
-    description = cve['cve']['description']['description_data'][0]['value']
-    link = f"https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve_id}"
-    cve_list.append(f"- [{cve_id}]({link}): {description}")
+def generate_markdown(cve_data):
+    cve_list = []
+    for item in cve_data['result']['CVE_Items']:
+        cve_id = item['cve']['CVE_data_meta']['ID']
+        description = item['cve']['description']['description_data'][0]['value']
+        link = f"https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve_id}"
+        cve_list.append(f"- [{cve_id}]({link}): {description}")
 
-# Save to a Markdown file
-with open("LATEST_CVES.md", "w") as file:
-    file.write("# Latest Top 100 CVEs\n\n")
-    file.write("\n".join(cve_list))
+    with open("LATEST_CVES.md", "w") as file:
+        file.write("# Latest Top 100 CVEs\n\n")
+        file.write("\n".join(cve_list))
+
+if __name__ == "__main__":
+    data = fetch_cve_data()
+    generate_markdown(data)
