@@ -3,6 +3,7 @@ name: Update CVE List
 on:
   schedule:
     - cron: '0 0 * * 0' # Runs weekly
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   update-cve-list:
