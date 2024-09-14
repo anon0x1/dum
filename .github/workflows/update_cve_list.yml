@@ -1,0 +1,32 @@
+name: Update CVE List
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs weekly
+
+jobs:
+  update-cve-list:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Fetch and update CVE list
+        run: |
+          python update_cve_markdown.py
+
+      - name: Commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          author_name: 'GitHub Actions'
+          author_email: 'actions@github.com'
+          message: 'Update CVE list'
