@@ -1,18 +1,18 @@
 import requests
 
 def fetch_cve_data():
-    url = "https://services.nvd.nist.gov/rest/json/cves/1.0?resultsPerPage=10"
+    url = "https://services.nvd.nist.gov/rest/json/cves/1.0?resultsPerPage=100"
     response = requests.get(url)
     
     print(f"Status Code: {response.status_code}")
-    print(f"Response Content: {response.text[:500]}")
-    
-    response.raise_for_status()  # Ensure we handle HTTP errors
+    print(f"Response Content: {response.text[:500]}")  # Print the first 500 characters
+
+    response.raise_for_status()  # Raise an error for HTTP issues
 
     try:
         data = response.json()
     except requests.exceptions.JSONDecodeError:
-        print("Failed to decode JSON. The response may not be in JSON format.")
+        print("Failed to decode JSON.")
         return {}
 
     return data
@@ -29,8 +29,13 @@ def generate_markdown(cve_data):
         link = f"https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve_id}"
         cve_list.append(f"- [{cve_id}]({link}): {description}")
 
+    if not cve_list:
+        print("CVE list is empty.")
+    else:
+        print(f"Writing {len(cve_list)} CVEs to LATEST_CVES.md")
+
     with open("LATEST_CVES.md", "w") as file:
-        file.write("# Latest Top 10 CVEs\n\n")
+        file.write("# Latest Top 100 CVEs\n\n")
         file.write("\n".join(cve_list))
 
 if __name__ == "__main__":
